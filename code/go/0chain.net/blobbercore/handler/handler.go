@@ -1,8 +1,7 @@
-//	0chain Api:
+//	0chain Blobber API:
 //	 version: 0.0.1
-//	 title: 0chain Api
+//	 title: 0chain Blobber API
 //	Schemes: http, https
-//	Host: localhost:7171
 //	BasePath: /
 //	Produces:
 //	  - application/json
@@ -182,13 +181,13 @@ func setupHandlers(r *mux.Router) {
 		RateLimitByGeneralRL(common.ToJSONResponse(WithConnection(AllocationHandler))))
 
 	r.HandleFunc("/v1/file/meta/{allocation}",
-		RateLimitByGeneralRL(common.ToJSONResponse(WithReadOnlyConnection(FileMetaHandler))))
+		RateLimitByGeneralRL(common.ToJSONResponse(WithReadOnlyConnection(FileMetaHandler)))) // TODO: add swagger
 
 	r.HandleFunc("/v1/file/stats/{allocation}",
-		RateLimitByGeneralRL(common.ToJSONResponse(WithReadOnlyConnection(FileStatsHandler))))
+		RateLimitByGeneralRL(common.ToJSONResponse(WithReadOnlyConnection(FileStatsHandler)))) // TODO: add swagger
 
 	r.HandleFunc("/v1/file/referencepath/{allocation}",
-		RateLimitByObjectRL(common.ToJSONResponse(WithReadOnlyConnection(ReferencePathHandler))))
+		RateLimitByObjectRL(common.ToJSONResponse(WithReadOnlyConnection(ReferencePathHandler)))) // TODO: add handler
 
 	r.HandleFunc("/v1/file/objecttree/{allocation}",
 		RateLimitByObjectRL(common.ToStatusCode(WithStatusReadOnlyConnection(ObjectTreeHandler)))).
@@ -333,7 +332,6 @@ func AllocationHandler(ctx context.Context, r *http.Request) (interface{}, error
 	return response, nil
 }
 
-// TODO: add swagger
 func FileMetaHandler(ctx context.Context, r *http.Request) (interface{}, error) {
 
 	ctx = setupHandlerContext(ctx, r)
@@ -415,7 +413,7 @@ func listHandler(ctx context.Context, r *http.Request) (interface{}, error) {
 // parameters:
 //
 //	+name: allocation
-//	 description: offset
+//	 description: the allocation ID
 //	 required: true
 //	 in: path
 //	 type: string
@@ -430,7 +428,6 @@ func CommitHandler(ctx context.Context, r *http.Request) (interface{}, int, erro
 	return commitHandler(ctx, r)
 }
 
-// TODO: add handler
 func ReferencePathHandler(ctx context.Context, r *http.Request) (interface{}, error) {
 
 	ctx, canceler := context.WithTimeout(ctx, time.Second*10)
@@ -526,7 +523,7 @@ func RecentRefsRequestHandler(ctx context.Context, r *http.Request) (interface{}
 // parameters:
 //
 //	+name: allocation
-//	 description: offset
+//	 description: the allocation ID
 //	 required: true
 //	 in: path
 //	 type: string
@@ -553,7 +550,7 @@ func RenameHandler(ctx context.Context, r *http.Request) (interface{}, error) {
 // parameters:
 //
 //	+name: allocation
-//	 description: offset
+//	 description: the allocation ID
 //	 required: true
 //	 in: path
 //	 type: string
@@ -580,7 +577,7 @@ func CopyHandler(ctx context.Context, r *http.Request) (interface{}, error) {
 // parameters:
 //
 //	+name: allocation
-//	 description: offset
+//	 description: the allocation ID
 //	 required: true
 //	 in: path
 //	 type: string
@@ -607,7 +604,7 @@ func MoveHandler(ctx context.Context, r *http.Request) (interface{}, error) {
 // parameters:
 //
 //	+name: allocation
-//	 description: offset
+//	 description: the allocation ID
 //	 required: true
 //	 in: path
 //	 type: string
@@ -731,7 +728,7 @@ func RevokeShare(ctx context.Context, r *http.Request) (interface{}, error) {
 	allocationID := ctx.Value(constants.ContextKeyAllocation).(string)
 	allocationObj, err := storageHandler.verifyAllocation(ctx, allocationID, true)
 	if err != nil {
-		return nil, common.NewError("invalid_parameters", "Invalid allocation id passed."+err.Error())
+		return nil, common.NewError("invalid_parameters", "Invalid allocation ID passed."+err.Error())
 	}
 
 	sign := r.Header.Get(common.ClientSignatureHeader)
@@ -788,7 +785,7 @@ func InsertShare(ctx context.Context, r *http.Request) (interface{}, error) {
 
 	allocationObj, err := storageHandler.verifyAllocation(ctx, allocationID, true)
 	if err != nil {
-		return nil, common.NewError("invalid_parameters", "Invalid allocation id passed."+err.Error())
+		return nil, common.NewError("invalid_parameters", "Invalid allocation ID passed."+err.Error())
 	}
 
 	sign := r.Header.Get(common.ClientSignatureHeader)

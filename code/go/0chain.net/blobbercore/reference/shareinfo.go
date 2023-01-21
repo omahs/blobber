@@ -9,15 +9,13 @@ import (
 )
 
 type ShareInfo struct {
-	ID                        int       `gorm:"column:id;primaryKey"`
-	OwnerID                   string    `gorm:"column:owner_id;size:64;not null;index:idx_marketplace_share_info_for_owner,priority:1" json:"owner_id,omitempty"`
-	ClientID                  string    `gorm:"column:client_id;size:64;not null;index:idx_marketplace_share_info_for_client,priority:1" json:"client_id"`
-	FilePathHash              string    `gorm:"column:file_path_hash;size:64;not null;index:idx_marketplace_share_info_for_owner,priority:2;index:idx_marketplace_share_info_for_client,priority:2" json:"file_path_hash,omitempty"`
-	ReEncryptionKey           string    `gorm:"column:re_encryption_key;not null" json:"re_encryption_key,omitempty"`
-	ClientEncryptionPublicKey string    `gorm:"column:client_encryption_public_key;not null" json:"client_encryption_public_key,omitempty"`
-	Revoked                   bool      `gorm:"column:revoked;not null" json:"revoked"`
-	ExpiryAt                  time.Time `gorm:"column:expiry_at;not null" json:"expiry_at,omitempty"`
-	AvailableAt               time.Time `gorm:"column:available_at;type:timestamp without time zone;not null;default:current_timestamp" json:"available_at,omitempty"`
+	ID           int       `gorm:"column:id;primaryKey"`
+	OwnerID      string    `gorm:"column:owner_id;size:64;not null;index:idx_marketplace_share_info_for_owner,priority:1" json:"owner_id,omitempty"`
+	ClientID     string    `gorm:"column:client_id;size:64;not null;index:idx_marketplace_share_info_for_client,priority:1" json:"client_id"`
+	FilePathHash string    `gorm:"column:file_path_hash;size:64;not null;index:idx_marketplace_share_info_for_owner,priority:2;index:idx_marketplace_share_info_for_client,priority:2" json:"file_path_hash,omitempty"`
+	Revoked      bool      `gorm:"column:revoked;not null" json:"revoked"`
+	ExpiryAt     time.Time `gorm:"column:expiry_at;not null" json:"expiry_at,omitempty"`
+	AvailableAt  time.Time `gorm:"column:available_at;type:timestamp without time zone;not null;default:current_timestamp" json:"available_at,omitempty"`
 }
 
 func (ShareInfo) TableName() string {
@@ -61,7 +59,7 @@ func UpdateShareInfo(ctx context.Context, shareInfo *ShareInfo) error {
 			ClientID:     shareInfo.ClientID,
 			FilePathHash: shareInfo.FilePathHash,
 		}).
-		Select("Revoked", "ReEncryptionKey", "ExpiryAt", "AvailableAt", "ClientEncryptionPublicKey").
+		Select("Revoked", "ExpiryAt", "AvailableAt").
 		Updates(shareInfo).
 		Error
 }

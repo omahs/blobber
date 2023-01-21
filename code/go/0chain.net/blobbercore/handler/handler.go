@@ -603,7 +603,6 @@ func InsertShare(ctx context.Context, r *http.Request) (interface{}, error) {
 		return nil, common.NewError("invalid_client", "Client has no access to share file")
 	}
 
-	encryptionPublicKey := r.FormValue("encryption_public_key")
 	authTicketString := r.FormValue("auth_ticket")
 	availableAfter := r.FormValue("available_after")
 	authTicket := &readmarker.AuthTicket{}
@@ -637,13 +636,11 @@ func InsertShare(ctx context.Context, r *http.Request) (interface{}, error) {
 	}
 
 	shareInfo := reference.ShareInfo{
-		OwnerID:                   authTicket.OwnerID,
-		ClientID:                  authTicket.ClientID,
-		FilePathHash:              authTicket.FilePathHash,
-		ReEncryptionKey:           authTicket.ReEncryptionKey,
-		ClientEncryptionPublicKey: encryptionPublicKey,
-		ExpiryAt:                  common.ToTime(authTicket.Expiration).UTC(),
-		AvailableAt:               common.ToTime(availableAt).UTC(),
+		OwnerID:      authTicket.OwnerID,
+		ClientID:     authTicket.ClientID,
+		FilePathHash: authTicket.FilePathHash,
+		ExpiryAt:     common.ToTime(authTicket.Expiration).UTC(),
+		AvailableAt:  common.ToTime(availableAt).UTC(),
 	}
 
 	existingShare, _ := reference.GetShareInfo(ctx, authTicket.ClientID, authTicket.FilePathHash)

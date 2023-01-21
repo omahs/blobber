@@ -71,10 +71,6 @@ func TestHandlers_Download(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	guestScheme, err := getEncryptionScheme(guestClient.Mnemonic)
-	if err != nil {
-		t.Fatal(err)
-	}
 	// require.NoError(t, client.PopulateClient(clientJson, "bls0chain"))
 	// setupEncryptionScheme()
 
@@ -702,21 +698,11 @@ func TestHandlers_Download(t *testing.T) {
 					WithArgs(guestClient.ClientID).
 					WillReturnError(gorm.ErrRecordNotFound)
 
-				guestPublicEncryptedKey, err := guestScheme.GetPublicKey()
-				if err != nil {
-					t.Fatal(err)
-				}
-				reEncryptionKey, err := ownerScheme.GetReGenKey(guestPublicEncryptedKey, "filetype:audio")
-
-				if err != nil {
-					t.Fatal(err)
-				}
-
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "marketplace_share_info" WHERE`)).
 					WithArgs(guestClient.ClientID, filePathHash).
 					WillReturnRows(
-						sqlmock.NewRows([]string{"re_encryption_key", "client_encryption_public_key"}).
-							AddRow(reEncryptionKey, guestPublicEncryptedKey),
+						sqlmock.NewRows([]string{"client_id"}).
+							AddRow(guestClient.ClientID),
 					)
 
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "read_markers" WHERE`)).
@@ -852,17 +838,11 @@ func TestHandlers_Download(t *testing.T) {
 							AddRow("/", "d", rootPathHash, rootPathHash, "content_hash", "", "."),
 					)
 
-				gpbk, err := guestScheme.GetPublicKey()
-				if err != nil {
-					t.Fatal(err)
-				}
-
-				reEncryptionKey, _ := ownerScheme.GetReGenKey(gpbk, "filetype:audio")
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "marketplace_share_info" WHERE`)).
 					WithArgs(guestClient.ClientID, rootPathHash).
 					WillReturnRows(
-						sqlmock.NewRows([]string{"re_encryption_key", "client_encryption_public_key"}).
-							AddRow(reEncryptionKey, gpbk),
+						sqlmock.NewRows([]string{"client_id"}).
+							AddRow(guestClient.ClientID),
 					)
 
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "read_markers" WHERE`)).
@@ -998,17 +978,11 @@ func TestHandlers_Download(t *testing.T) {
 							AddRow("/folder1", "d", rootPathHash, rootPathHash, "content_hash", "", "."),
 					)
 
-				gpbk, err := guestScheme.GetPublicKey()
-				if err != nil {
-					t.Fatal(err)
-				}
-
-				reEncryptionKey, _ := ownerScheme.GetReGenKey(gpbk, "filetype:audio")
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "marketplace_share_info" WHERE`)).
 					WithArgs(guestClient.ClientID, rootPathHash).
 					WillReturnRows(
-						sqlmock.NewRows([]string{"re_encryption_key", "client_encryption_public_key"}).
-							AddRow(reEncryptionKey, gpbk),
+						sqlmock.NewRows([]string{"client_id"}).
+							AddRow(guestClient.ClientID),
 					)
 
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "read_markers" WHERE`)).

@@ -295,25 +295,8 @@ func (fsh *StorageHandler) DownloadFile(ctx context.Context, r *http.Request) (r
 		return nil, common.NewErrorf("download_file", "couldn't save latest read marker")
 	}
 
-	var chunkEncoder ChunkEncoder
-	if len(fileref.EncryptedKey) > 0 && authToken != nil {
-		chunkEncoder = &PREChunkEncoder{
-			EncryptedKey:              fileref.EncryptedKey,
-			ReEncryptionKey:           shareInfo.ReEncryptionKey,
-			ClientEncryptionPublicKey: shareInfo.ClientEncryptionPublicKey,
-		}
-	} else {
-		chunkEncoder = &RawChunkEncoder{}
-	}
-
-	chunkData, err := chunkEncoder.Encode(int(fileref.ChunkSize), respData)
-
-	if err != nil {
-		return nil, err
-	}
-
 	stats.FileBlockDownloaded(ctx, fileref.ID)
-	return chunkData, nil
+	return respData, nil
 }
 
 func (fsh *StorageHandler) CommitWrite(ctx context.Context, r *http.Request) (*blobberhttp.CommitResult, error) {
